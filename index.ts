@@ -56,7 +56,7 @@ async function runLint(): Promise<void> {
   try {
     // Get inputs from the workflow
     const extensions = core.getInput('eslint_extensions') || 'js,ts';
-    const autoFix = core.getInput('auto_fix') === 'true';
+    const autoFix = core.getInput('auto_fix') === 'true'
 
     // Check if ESLint version is 9 or higher
     checkEslintVersion('9.0.0');
