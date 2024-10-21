@@ -1,0 +1,15 @@
+name: Test lint action
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run linting action
+        uses: ./ # Use local action for testing
+        with:
+          eslint_extensions: ts
+          auto_fix: true
