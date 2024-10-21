@@ -80,7 +80,11 @@ async function runLint(): Promise<void> {
       core.setFailed('ESLint found errors.');
     }
   } catch (error) {
-    core.setFailed(`Action failed: ${error.message}`);
+    if (error instanceof Error) {
+      core.setFailed(`Action failed: ${error.message}`);
+    } else {
+      core.setFailed('An unknown error occurred');
+    }
   }
 }
 
