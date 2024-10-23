@@ -5,15 +5,18 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
+    "@types/command-exists": "^1.2.3",
     "@types/node": "^22.7.7",
     "@typescript-eslint/eslint-plugin": "^8.11.0",
     "@typescript-eslint/parser": "^8.11.0",
     "eslint": "^9.13.0",
     "globals": "^15.11.0",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.11.0"
+    "typescript-eslint": "^8.11.0",
+    "command-exists": "^1.2.9"
   },
   "scripts": {
-    "build": "ncc build index.ts -o dist"
+    "build": "ncc build index.ts -o dist",
+    "eslint": "eslint "
   }
 }

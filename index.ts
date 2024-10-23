@@ -1,23 +1,21 @@
-import { execSync } from 'child_process';
 import * as core from '@actions/core';
+const {commandExists, runCli} = require("utils");
 
-// Function to execute shell commands and return the output
-function runCommand(command: string): string {
-  try {
-    return execSync(command, { encoding: 'utf-8' });
-  } catch (error) {
-    core.setFailed(`Command failed: ${error}`);
-    return '';
-  }
-}
 
 // Function to check ESLint version
-function checkEslintVersion(requiredVersion: string): void {
-  const installedVersion = runCommand('eslint --version').trim();
-  if (parseFloat(installedVersion.split('v')[1]) < parseFloat(requiredVersion)) {
-    core.setFailed(`Error: ESLint version ${requiredVersion} or higher is required. Found ${installedVersion}`);
-    process.exit(1);
+async function checkEslintVersion(): Promise<void> {
+  // Verify that NPM is installed (required to execute ESLint)
+  if (!(await commandExists("npm"))) {
+    throw new Error("NPM is not installed");
   }
+  // Verify that ESLint is installed
+  try {
+    runCli('npx eslint -v');
+  } catch (err) {
+    core.debug(String(err));
+    throw new Error('Eslint is not installed');
+  }
+
 }
 
 // Function to parse ESLint JSON output and create GitHub annotations
@@ -56,29 +54,29 @@ async function runLint(): Promise<void> {
   try {
     // Get inputs from the workflow
     const extensions = core.getInput('eslint_extensions') || 'js,ts';
-    const autoFix = core.getInput('auto_fix') === 'true'
+    const autoFix = core.getInput('auto_fix') === 'true';
 
     // Check if ESLint version is 9 or higher
-    checkEslintVersion('9.0.0');
+    checkEslintVersion();
 
     // Build the ESLint command
-    let command = `eslint . --ext ${extensions} --format json`;
-    if (autoFix) {
-      command += ' --fix';
-    }
-
-    // Run ESLint and capture output
-    const eslintOutput = runCommand(command);
-
-    // Create annotations from the ESLint output
-    // createAnnotations(eslintOutput);
-
-    // Fail the action if there are any ESLint errors
-    const results = JSON.parse(eslintOutput);
-    const hasErrors = results.some((result: any) => result.errorCount > 0);
-    if (hasErrors) {
-      core.setFailed('ESLint found errors.');
-    }
+    /*     let command = `eslint . --ext ${extensions} --format json`;
+        if (autoFix) {
+          command += ' --fix';
+        }
+    
+        // Run ESLint and capture output
+        const eslintOutput = runCommand(command);
+    
+        // Create annotations from the ESLint output
+        // createAnnotations(eslintOutput);
+    
+        // Fail the action if there are any ESLint errors
+        const results = JSON.parse(eslintOutput);
+        const hasErrors = results.some((result: any) => result.errorCount > 0);
+        if (hasErrors) {
+          core.setFailed('ESLint found errors.');
+        } */
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(`Action failed: ${error.message}`);
@@ -87,6 +85,3 @@ async function runLint(): Promise<void> {
     }
   }
 }
-
-// Run the linting action
-runLint();

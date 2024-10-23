@@ -3195,6 +3195,179 @@ function copyFile(srcFile, destFile, force) {
 
 /***/ }),
 
+/***/ 8888:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+module.exports = __nccwpck_require__(3610);
+
+
+/***/ }),
+
+/***/ 3610:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+
+var exec = (__nccwpck_require__(5317).exec);
+var execSync = (__nccwpck_require__(5317).execSync);
+var fs = __nccwpck_require__(9896);
+var path = __nccwpck_require__(6928);
+var access = fs.access;
+var accessSync = fs.accessSync;
+var constants = fs.constants || fs;
+
+var isUsingWindows = process.platform == 'win32'
+
+var fileNotExists = function(commandName, callback){
+    access(commandName, constants.F_OK,
+    function(err){
+        callback(!err);
+    });
+};
+
+var fileNotExistsSync = function(commandName){
+    try{
+        accessSync(commandName, constants.F_OK);
+        return false;
+    }catch(e){
+        return true;
+    }
+};
+
+var localExecutable = function(commandName, callback){
+    access(commandName, constants.F_OK | constants.X_OK,
+        function(err){
+        callback(null, !err);
+    });
+};
+
+var localExecutableSync = function(commandName){
+    try{
+        accessSync(commandName, constants.F_OK | constants.X_OK);
+        return true;
+    }catch(e){
+        return false;
+    }
+}
+
+var commandExistsUnix = function(commandName, cleanedCommandName, callback) {
+
+    fileNotExists(commandName, function(isFile){
+
+        if(!isFile){
+            var child = exec('command -v ' + cleanedCommandName +
+                  ' 2>/dev/null' +
+                  ' && { echo >&1 ' + cleanedCommandName + '; exit 0; }',
+                  function (error, stdout, stderr) {
+                      callback(null, !!stdout);
+                  });
+            return;
+        }
+
+        localExecutable(commandName, callback);
+    });
+
+}
+
+var commandExistsWindows = function(commandName, cleanedCommandName, callback) {
+  // Regex from Julio from: https://stackoverflow.com/questions/51494579/regex-windows-path-validator
+  if (!(/^(?!(?:.*\s|.*\.|\W+)$)(?:[a-zA-Z]:)?(?:(?:[^<>:"\|\?\*\n])+(?:\/\/|\/|\\\\|\\)?)+$/m.test(commandName))) {
+    callback(null, false);
+    return;
+  }
+  var child = exec('where ' + cleanedCommandName,
+    function (error) {
+      if (error !== null){
+        callback(null, false);
+      } else {
+        callback(null, true);
+      }
+    }
+  )
+}
+
+var commandExistsUnixSync = function(commandName, cleanedCommandName) {
+  if(fileNotExistsSync(commandName)){
+      try {
+        var stdout = execSync('command -v ' + cleanedCommandName +
+              ' 2>/dev/null' +
+              ' && { echo >&1 ' + cleanedCommandName + '; exit 0; }'
+              );
+        return !!stdout;
+      } catch (error) {
+        return false;
+      }
+  }
+  return localExecutableSync(commandName);
+}
+
+var commandExistsWindowsSync = function(commandName, cleanedCommandName, callback) {
+  // Regex from Julio from: https://stackoverflow.com/questions/51494579/regex-windows-path-validator
+  if (!(/^(?!(?:.*\s|.*\.|\W+)$)(?:[a-zA-Z]:)?(?:(?:[^<>:"\|\?\*\n])+(?:\/\/|\/|\\\\|\\)?)+$/m.test(commandName))) {
+    return false;
+  }
+  try {
+      var stdout = execSync('where ' + cleanedCommandName, {stdio: []});
+      return !!stdout;
+  } catch (error) {
+      return false;
+  }
+}
+
+var cleanInput = function(s) {
+  if (/[^A-Za-z0-9_\/:=-]/.test(s)) {
+    s = "'"+s.replace(/'/g,"'\\''")+"'";
+    s = s.replace(/^(?:'')+/g, '') // unduplicate single-quote at the beginning
+      .replace(/\\'''/g, "\\'" ); // remove non-escaped single-quote if there are enclosed between 2 escaped
+  }
+  return s;
+}
+
+if (isUsingWindows) {
+  cleanInput = function(s) {
+    var isPathName = /[\\]/.test(s);
+    if (isPathName) {
+      var dirname = '"' + path.dirname(s) + '"';
+      var basename = '"' + path.basename(s) + '"';
+      return dirname + ':' + basename;
+    }
+    return '"' + s + '"';
+  }
+}
+
+module.exports = function commandExists(commandName, callback) {
+  var cleanedCommandName = cleanInput(commandName);
+  if (!callback && typeof Promise !== 'undefined') {
+    return new Promise(function(resolve, reject){
+      commandExists(commandName, function(error, output) {
+        if (output) {
+          resolve(commandName);
+        } else {
+          reject(error);
+        }
+      });
+    });
+  }
+  if (isUsingWindows) {
+    commandExistsWindows(commandName, cleanedCommandName, callback);
+  } else {
+    commandExistsUnix(commandName, cleanedCommandName, callback);
+  }
+};
+
+module.exports.sync = function(commandName) {
+  var cleanedCommandName = cleanInput(commandName);
+  if (isUsingWindows) {
+    return commandExistsWindowsSync(commandName, cleanedCommandName);
+  } else {
+    return commandExistsUnixSync(commandName, cleanedCommandName);
+  }
+};
+
+
+/***/ }),
+
 /***/ 770:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -25650,25 +25823,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const child_process_1 = __nccwpck_require__(5317);
 const core = __nccwpck_require__(7484);
-// Function to execute shell commands and return the output
-function runCommand(command) {
-    try {
-        return (0, child_process_1.execSync)(command, { encoding: 'utf-8' });
-    }
-    catch (error) {
-        core.setFailed(`Command failed: ${error}`);
-        return '';
-    }
-}
+const { commandExists, runCli } = __nccwpck_require__(2967);
 // Function to check ESLint version
-function checkEslintVersion(requiredVersion) {
-    const installedVersion = runCommand('eslint --version').trim();
-    if (parseFloat(installedVersion.split('v')[1]) < parseFloat(requiredVersion)) {
-        core.setFailed(`Error: ESLint version ${requiredVersion} or higher is required. Found ${installedVersion}`);
-        process.exit(1);
-    }
+function checkEslintVersion() {
+    return __awaiter(this, void 0, void 0, function* () {
+        // Verify that NPM is installed (required to execute ESLint)
+        if (!(yield commandExists("npm"))) {
+            throw new Error("NPM is not installed");
+        }
+        // Verify that ESLint is installed
+        try {
+            runCli('npx eslint -v');
+        }
+        catch (err) {
+            core.debug(String(err));
+            throw new Error('Eslint is not installed');
+        }
+    });
 }
 // Function to parse ESLint JSON output and create GitHub annotations
 function createAnnotations(eslintOutput) {
@@ -25708,22 +25880,25 @@ function runLint() {
             const extensions = core.getInput('eslint_extensions') || 'js,ts';
             const autoFix = core.getInput('auto_fix') === 'true';
             // Check if ESLint version is 9 or higher
-            checkEslintVersion('9.0.0');
+            checkEslintVersion();
             // Build the ESLint command
-            let command = `eslint . --ext ${extensions} --format json`;
-            if (autoFix) {
-                command += ' --fix';
-            }
-            // Run ESLint and capture output
-            const eslintOutput = runCommand(command);
-            // Create annotations from the ESLint output
-            // createAnnotations(eslintOutput);
-            // Fail the action if there are any ESLint errors
-            const results = JSON.parse(eslintOutput);
-            const hasErrors = results.some((result) => result.errorCount > 0);
-            if (hasErrors) {
-                core.setFailed('ESLint found errors.');
-            }
+            /*     let command = `eslint . --ext ${extensions} --format json`;
+                if (autoFix) {
+                  command += ' --fix';
+                }
+            
+                // Run ESLint and capture output
+                const eslintOutput = runCommand(command);
+            
+                // Create annotations from the ESLint output
+                // createAnnotations(eslintOutput);
+            
+                // Fail the action if there are any ESLint errors
+                const results = JSON.parse(eslintOutput);
+                const hasErrors = results.some((result: any) => result.errorCount > 0);
+                if (hasErrors) {
+                  core.setFailed('ESLint found errors.');
+                } */
         }
         catch (error) {
             if (error instanceof Error) {
@@ -25735,8 +25910,78 @@ function runLint() {
         }
     });
 }
-// Run the linting action
-runLint();
+
+
+/***/ }),
+
+/***/ 2967:
+/***/ (function(module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const child_process_1 = __nccwpck_require__(5317);
+const core = __nccwpck_require__(7484);
+const checkForCommand = __nccwpck_require__(8888);
+/**
+ * Returns whether the provided shell command is available
+ * @param {string} command - Shell command to check for
+ * @returns {Promise<boolean>} - Whether the command is available
+ */
+function commandExists(command) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // The `command-exists` library throws an error if the command is not available. This function
+        // catches these errors and returns a boolean value instead
+        try {
+            yield checkForCommand(command);
+            return true;
+        }
+        catch (error) {
+            console.log(`Check for command gave following error: ${error}`);
+            return false;
+        }
+    });
+}
+/**
+ * Executes the provided shell command
+ * @param {string} cmd - Shell command to execute
+ * @returns {{status: number, stdout: string, stderr: string}} - Output of the shell command
+ */
+function runCli(cmd) {
+    core.debug('HEEEELO' + cmd);
+    try {
+        const stdout = (0, child_process_1.execSync)(cmd, {
+            encoding: "utf8",
+            maxBuffer: 20 * 1024 * 1024,
+        });
+        const output = {
+            status: 0,
+            stdout: stdout.trim(),
+            stderr: "",
+        };
+        core.debug(`Stdout: ${output.stdout}`);
+        return output;
+    }
+    catch (err) {
+        core.debug(`Exit code: ${err.status}`);
+        core.debug(`Stdout: ${err.stdout.trim()}`);
+        core.debug(`Stderr: ${err.stderr.trim()}`);
+        throw new Error();
+    }
+}
+module.exports = {
+    commandExists,
+    runCli
+};
 
 
 /***/ }),
