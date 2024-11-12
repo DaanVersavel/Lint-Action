@@ -41,7 +41,7 @@ class ESLint {
      */
     static lint(extensions: string, autoFix: string) {
 
-        let command = `eslint "**/*.${extensions}" --format json"`;
+        let command = `eslint "**/*.${extensions}" --format json`;
         if (autoFix) {
           command += ' --fix';
         }
