@@ -25808,7 +25808,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 98:
+/***/ 9407:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -25824,81 +25824,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __nccwpck_require__(7484);
-const { commandExists, runCli } = __nccwpck_require__(2967);
-// Function to check ESLint version
-function checkEslintVersion() {
-    return __awaiter(this, void 0, void 0, function* () {
-        // Verify that NPM is installed (required to execute ESLint)
-        if (!(yield commandExists("npm"))) {
-            throw new Error("NPM is not installed");
-        }
-        // Verify that ESLint is installed
-        try {
-            runCli('npx eslint -v');
-        }
-        catch (err) {
-            core.debug(String(err));
-            throw new Error('Eslint is not installed');
-        }
-    });
-}
-// Function to parse ESLint JSON output and create GitHub annotations
-function createAnnotations(eslintOutput) {
-    const results = JSON.parse(eslintOutput);
-    results.forEach((result) => {
-        const filePath = result.filePath;
-        result.messages.forEach((message) => {
-            const line = message.line;
-            const column = message.column;
-            const ruleId = message.ruleId;
-            const severity = message.severity;
-            const eslintMessage = message.message;
-            if (severity === 2) {
-                // Severity 2 is an error
-                core.error(`${eslintMessage} (${ruleId})`, {
-                    file: filePath,
-                    startLine: line,
-                    startColumn: column,
-                });
-            }
-            else {
-                // Severity 1 is a warning
-                core.warning(`${eslintMessage} (${ruleId})`, {
-                    file: filePath,
-                    startLine: line,
-                    startColumn: column,
-                });
-            }
-        });
-    });
-}
+const eslint = __nccwpck_require__(7098);
 // Main function to run ESLint
 function runLint() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // Get inputs from the workflow
-            const extensions = core.getInput('eslint_extensions') || 'js,ts';
+            const extensions = core.getInput('eslint_extensions');
             const autoFix = core.getInput('auto_fix') === 'true';
+            // const context = getContext();
             // Check if ESLint version is 9 or higher
-            checkEslintVersion();
-            // Build the ESLint command
-            /*     let command = `eslint . --ext ${extensions} --format json`;
-                if (autoFix) {
-                  command += ' --fix';
-                }
-            
-                // Run ESLint and capture output
-                const eslintOutput = runCommand(command);
-            
-                // Create annotations from the ESLint output
-                // createAnnotations(eslintOutput);
-            
-                // Fail the action if there are any ESLint errors
-                const results = JSON.parse(eslintOutput);
-                const hasErrors = results.some((result: any) => result.errorCount > 0);
-                if (hasErrors) {
-                  core.setFailed('ESLint found errors.');
-                } */
+            eslint.checkEslintVersion();
+            // Run ESLint and capture output
+            const eslintOutput = eslint.lint(extensions, autoFix);
+            const lintResult = eslint.parseOutput(eslintOutput);
+            if (!lintResult.isSuccess) {
+                core.setFailed('ESLint found errors.');
+            }
         }
         catch (error) {
             if (error instanceof Error) {
@@ -25910,11 +25852,165 @@ function runLint() {
         }
     });
 }
+runLint();
 
 
 /***/ }),
 
-/***/ 2967:
+/***/ 6842:
+/***/ ((module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+/**
+ * Returns an object for storing linting results
+ * @returns {LintResult} - Default object
+ */
+function initLintResult() {
+    const result = {
+        isSuccess: false, // Usually determined by the exit code of the linting command
+        warning: [],
+        error: [],
+    };
+    return result;
+}
+/**
+ * Returns a text summary of the number of issues found when linting
+ * @param {LintResult} lintResult - Parsed linter
+ * output
+ * @returns {string} - Text summary
+ */
+function getSummary(lintResult) {
+    const nrErrors = lintResult.error.length;
+    const nrWarnings = lintResult.warning.length;
+    // Build and log a summary of linting errors/warnings
+    if (nrWarnings > 0 && nrErrors > 0) {
+        return `${nrErrors} error${nrErrors > 1 ? "s" : ""} and ${nrWarnings} warning${nrWarnings > 1 ? "s" : ""}`;
+    }
+    if (nrErrors > 0) {
+        return `${nrErrors} error${nrErrors > 1 ? "s" : ""}`;
+    }
+    if (nrWarnings > 0) {
+        return `${nrWarnings} warning${nrWarnings > 1 ? "s" : ""}`;
+    }
+    return `no issues`;
+}
+module.exports = {
+    getSummary,
+    initLintResult,
+};
+
+
+/***/ }),
+
+/***/ 7098:
+/***/ (function(module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const { initLintResult } = __nccwpck_require__(6842);
+const { runCli, commandExists, removeTrailingPeriod } = __nccwpck_require__(1798);
+const core = __nccwpck_require__(7484);
+/** @typedef {import('../utils/lint-result').LintResult} LintResult */
+/**
+ * https://eslint.org
+ */
+class ESLint {
+    /**
+     * Verifies that all required programs are installed. Throws an error if programs are missing
+     */
+    static checkEslintVersion() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Verify that NPM is installed (required to execute ESLint)
+            if (!(yield commandExists("npm"))) {
+                throw new Error("NPM is not installed");
+            }
+            // Verify that ESLint is installed
+            try {
+                runCli('eslint -v', 'npx');
+            }
+            catch (err) {
+                core.debug(String(err));
+                throw new Error('Eslint is not installed');
+            }
+        });
+    }
+    /**
+     * Runs the linting program and returns the command output
+     * @param {string} dir - Directory to run the linter in
+     * @param {string[]} extensions - File extensions which should be linted
+     * @param {string} args - Additional arguments to pass to the linter
+     * @param {boolean} fix - Whether the linter should attempt to fix code style issues automatically
+     * @param {string} prefix - Prefix to the lint command
+     * @returns {{status: number, stdout: string, stderr: string}} - Output of the lint command
+     */
+    static lint(extensions, autoFix) {
+        let command = `eslint "**/*.${extensions}" --format json"`;
+        if (autoFix) {
+            command += ' --fix';
+        }
+        return runCli(command, 'npx');
+    }
+    /**
+     * Parses the output of the lint command. Determines the success of the lint process and the
+     * severity of the identified code style violations
+     * @param {string} dir - Directory in which the linter has been run
+     * @param {{status: number, stdout: string, stderr: string}} output - Output of the lint command
+     * @returns {lintResultType} - Parsed lint result
+     */
+    static parseOutput(output) {
+        const lintResult = initLintResult();
+        lintResult.isSuccess = output.status === 0;
+        let outputJson;
+        try {
+            outputJson = JSON.parse(output.stdout);
+        }
+        catch (err) {
+            throw Error(`Error parsing ${this.name} JSON output: ${err}. Output: "${output.stdout}"`);
+        }
+        for (const violation of outputJson) {
+            const { messages } = violation;
+            // const path = filePath.substring(dir.length + 1);
+            for (const msg of messages) {
+                const { fatal, line, message, ruleId, severity } = msg;
+                // Exit if a fatal ESLint error occurred
+                if (fatal) {
+                    throw Error(`ESLint error: ${message}`);
+                }
+                const entry = {
+                    // path,
+                    firstLine: line,
+                    lastLine: line,
+                    message: `${removeTrailingPeriod(message)} (${ruleId})`,
+                };
+                if (severity === 1) {
+                    lintResult.warning.push(entry);
+                }
+                else if (severity === 2) {
+                    lintResult.error.push(entry);
+                }
+            }
+        }
+        return lintResult;
+    }
+}
+module.exports = ESLint;
+
+
+/***/ }),
+
+/***/ 1798:
 /***/ (function(module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -25956,31 +26052,56 @@ function commandExists(command) {
  * @param {string} cmd - Shell command to execute
  * @returns {{status: number, stdout: string, stderr: string}} - Output of the shell command
  */
-function runCli(cmd) {
-    core.debug('HEEEELO' + cmd);
+function runCli(cmd, prefix) {
+    if (prefix === undefined) {
+        throw new Error('prefix is required');
+    }
+    core.info(cmd);
+    const commandCli = `${prefix} ${cmd}`;
+    const output = {
+        status: 0,
+        stdout: "",
+        stderr: ""
+    };
     try {
-        const stdout = (0, child_process_1.execSync)(cmd, {
+        const stdout = (0, child_process_1.execSync)(commandCli, {
             encoding: "utf8",
             maxBuffer: 20 * 1024 * 1024,
         });
-        const output = {
-            status: 0,
-            stdout: stdout.trim(),
-            stderr: "",
-        };
+        output.status = 0;
+        output.stdout = stdout.trim();
+        output.stderr = "";
         core.debug(`Stdout: ${output.stdout}`);
         return output;
     }
     catch (err) {
-        core.debug(`Exit code: ${err.status}`);
-        core.debug(`Stdout: ${err.stdout.trim()}`);
+        /* const error: outputType = err;
+        const output: outputType = {
+            status: error.status,
+            stdout: error.stdout.trim(),
+            stderr: error.stderr.trim(),
+        };
+
+        core.debug(`Exit code: ${error.status}`);
+        core.debug(`Stdout: ${error.stdout.trim()}`);
         core.debug(`Stderr: ${err.stderr.trim()}`);
-        throw new Error();
+        core.debug(`Command: ${commandCli}`); */
+        console.log(String(err));
+        return output;
     }
+}
+/**
+ * Removes the trailing period from the provided string (if it has one)
+ * @param {string} str - String to process
+ * @returns {string} - String without trailing period
+ */
+function removeTrailingPeriod(str) {
+    return str[str.length - 1] === "." ? str.substring(0, str.length - 1) : str;
 }
 module.exports = {
     commandExists,
-    runCli
+    runCli,
+    removeTrailingPeriod
 };
 
 
@@ -27893,7 +28014,7 @@ module.exports = parseParams
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(98);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(9407);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()

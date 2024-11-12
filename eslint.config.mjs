@@ -1,21 +1,35 @@
 import globals from "globals";
-import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
-import { rules } from "@eslint/js/src/configs/eslint-all";
-
+import tseslint from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
 
 export default [
   {
-    // Need to be in different object for some reason. See https://github.com/eslint/eslint/issues/17400
-    ignores: ['eslint.config.mjs', 'node_modules/', 'tsconfig.json', 'dist/index.js'],
+    // Ignore specific files and directories
+    ignores: [
+      "eslint.config.mjs",
+      "node_modules/",
+      "tsconfig.json",
+      "dist/",
+    ],
   },
-  {files: ["**/*.{js,mjs,cjs,ts}"]},
-  {files: ["**/*.js"], languageOptions: {sourceType: "commonjs"}},
-  {languageOptions: { globals: globals.browser },
-  rules: {
-    // Disables no null assertion
-    '@typescript-eslint/no-require-imports': 'off',
-  }},
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
+  {
+    files: ["**/*.{ts,tsx}"],
+    languageOptions: {
+      parser: tsParser,
+      sourceType: "module",
+    },
+    plugins: {
+      "@typescript-eslint": tseslint,
+    },
+    rules: {
+      ...tseslint.configs.recommended.rules,
+      // Add any custom rules here
+      '@typescript-eslint/no-require-imports': 'off'
+    },
+  },
+  {
+    languageOptions: {
+      globals: globals.browser,
+    },
+  },
 ];
