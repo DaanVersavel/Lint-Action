@@ -25956,7 +25956,7 @@ class ESLint {
      * @returns {{status: number, stdout: string, stderr: string}} - Output of the lint command
      */
     static lint(extensions, autoFix) {
-        let command = `eslint "**/*.${extensions}" --format json"`;
+        let command = `eslint "**/*.${extensions}" --format json`;
         if (autoFix) {
             command += ' --fix';
         }
