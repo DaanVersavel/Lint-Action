@@ -22,7 +22,7 @@ async function commandExists(command: string) {
 		return true;
 	} catch (error) {
 		console.log(`Check for command gave following error: ${error}`);
-		return false;
+		return false
 	}
 }
 
@@ -47,10 +47,10 @@ function runCli(cmd: string, prefix: string): outputType {
 	try {
 		const stdout = execSync(commandCli, {
 			encoding: "utf8",
-			maxBuffer: 20 * 1024 * 1024,
+			maxBuffer: 20 * 1024 * 1024
 		});
 
-		output.status =  0;
+		output.status = 0;
 		output.stdout = stdout.trim();
 		output.stderr = "";
 

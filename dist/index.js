@@ -25871,7 +25871,7 @@ function initLintResult() {
     const result = {
         isSuccess: false, // Usually determined by the exit code of the linting command
         warning: [],
-        error: [],
+        error: []
     };
     return result;
 }
@@ -25898,7 +25898,7 @@ function getSummary(lintResult) {
 }
 module.exports = {
     getSummary,
-    initLintResult,
+    initLintResult
 };
 
 
@@ -25992,7 +25992,7 @@ class ESLint {
                     // path,
                     firstLine: line,
                     lastLine: line,
-                    message: `${removeTrailingPeriod(message)} (${ruleId})`,
+                    message: `${removeTrailingPeriod(message)} (${ruleId})`
                 };
                 if (severity === 1) {
                     lintResult.warning.push(entry);
@@ -26066,7 +26066,7 @@ function runCli(cmd, prefix) {
     try {
         const stdout = (0, child_process_1.execSync)(commandCli, {
             encoding: "utf8",
-            maxBuffer: 20 * 1024 * 1024,
+            maxBuffer: 20 * 1024 * 1024
         });
         output.status = 0;
         output.stdout = stdout.trim();

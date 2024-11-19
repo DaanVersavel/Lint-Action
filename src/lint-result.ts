@@ -21,10 +21,10 @@ export type lintResultType = {
  * @returns {LintResult} - Default object
  */
 function initLintResult() {
-	const result : lintResultType ={
+	const result : lintResultType = {
 		isSuccess: false, // Usually determined by the exit code of the linting command
 		warning: [],
-		error: [],
+		error: []
 	};
 	
 	return result 
@@ -56,5 +56,5 @@ function getSummary(lintResult: lintResultType) {
 
 module.exports = {
 	getSummary,
-	initLintResult,
+	initLintResult
 };

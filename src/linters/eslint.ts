@@ -64,7 +64,7 @@ class ESLint {
             outputJson = JSON.parse(output.stdout);
         } catch (err: unknown) {
             throw Error(
-                `Error parsing ${this.name} JSON output: ${err}. Output: "${output.stdout}"`,
+                `Error parsing ${this.name} JSON output: ${err}. Output: "${output.stdout}"`
             );
         }
 
@@ -84,7 +84,7 @@ class ESLint {
                     // path,
                     firstLine: line,
                     lastLine: line,
-                    message: `${removeTrailingPeriod(message)} (${ruleId})`,
+                    message: `${removeTrailingPeriod(message)} (${ruleId})`
                 };
                 if (severity === 1) {
                     lintResult.warning.push(entry);
