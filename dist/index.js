@@ -25825,6 +25825,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __nccwpck_require__(7484);
 const eslint = __nccwpck_require__(7098);
+// const { getContext } = require("./github/context");
 // Main function to run ESLint
 function runLint() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -25871,7 +25872,8 @@ function initLintResult() {
     const result = {
         isSuccess: false, // Usually determined by the exit code of the linting command
         warning: [],
-        error: []
+        error: [],
+        fixable: false
     };
     return result;
 }
@@ -25980,8 +25982,9 @@ class ESLint {
             throw Error(`Error parsing ${this.name} JSON output: ${err}. Output: "${output.stdout}"`);
         }
         for (const violation of outputJson) {
-            const { messages } = violation;
+            const { messages, fixableErrorCount } = violation;
             // const path = filePath.substring(dir.length + 1);
+            lintResult.fixable = lintResult.fixable || !!fixableErrorCount;
             for (const msg of messages) {
                 const { fatal, line, message, ruleId, severity } = msg;
                 // Exit if a fatal ESLint error occurred
@@ -26075,17 +26078,14 @@ function runCli(cmd, prefix) {
         return output;
     }
     catch (err) {
-        /* const error: outputType = err;
-        const output: outputType = {
-            status: error.status,
-            stdout: error.stdout.trim(),
-            stderr: error.stderr.trim(),
-        };
-
-        core.debug(`Exit code: ${error.status}`);
-        core.debug(`Stdout: ${error.stdout.trim()}`);
-        core.debug(`Stderr: ${err.stderr.trim()}`);
-        core.debug(`Command: ${commandCli}`); */
+        if (typeof err === 'object' && err !== null) {
+            console.log('yow');
+            if ('status' in err && 'stdout' in err && 'stderr' in err) {
+                output.status = err.status;
+                output.stdout = err.stdout.trim();
+                output.stderr = err.stderr.trim();
+            }
+        }
         console.log(String(err));
         return output;
     }
