@@ -1,0 +1,20 @@
+name: 'My Lint Action'
+description: 'A custom linting action with eslint support and auto-fix'
+author: 'DaanVersavel'
+inputs:
+  eslint_extensions:
+    description: 'File extensions to lint with eslint'
+    required: false
+    default: 'js,ts'
+  auto_fix:
+    description: 'Automatically fix lint issues'
+    required: false
+    default: 'false'
+
+runs:
+  using: 'node20' # Use the Node.js runtime for GitHub Actions
+  main: 'dist/index.js' # Point to the bundled JS file
+
+branding:
+  icon: 'check'
+  color: 'blue'

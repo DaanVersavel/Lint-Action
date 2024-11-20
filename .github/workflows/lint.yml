@@ -1,0 +1,23 @@
+name: Lint action
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Node.js dependencies
+        run: npm i
+
+      - name: Run linting action
+        uses: ./ # Use local action for testing
+        with:
+          eslint_extensions: ts
+          auto_fix: false

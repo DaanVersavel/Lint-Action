@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@vercel/ncc": "^0.38.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "@types/command-exists": "^1.2.3",
+    "@types/node": "^22.9.0",
+    "@typescript-eslint/eslint-plugin": "^8.15.0",
+    "@typescript-eslint/parser": "^8.15.0",
+    "command-exists": "^1.2.9",
+    "eslint": "^9.15.0",
+    "globals": "^15.12.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.15.0",
+    "@stylistic/eslint-plugin": "^2.11.0"
+  },
+  "scripts": {
+    "prepare": "git config core.hooksPath ./git-hooks",
+    "build": "ncc build src/index.ts -o dist",
+    "eslint": "eslint ",
+    "eslint-fix": "eslint --fix"
+  }
+}

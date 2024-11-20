@@ -1,0 +1,6 @@
+#!/bin/bash
+npm run build
+
+
+echo "-Add fixed files" 
+git add dist/index.js
