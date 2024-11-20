@@ -25840,8 +25840,8 @@ function runLint() {
             const eslintOutput = eslint.lint(extensions, autoFix);
             const lintResult = eslint.parseOutput(eslintOutput);
             console.log(core);
-            core.setFailed('ESLint found errors.');
             if (!lintResult.isSuccess) {
+                core.setFailed('ESLint found errors.');
             }
         }
         catch (error) {
@@ -25924,7 +25924,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const { initLintResult } = __nccwpck_require__(6842);
 const { runCli, commandExists, removeTrailingPeriod } = __nccwpck_require__(1798);
-const core = __nccwpck_require__(7484);
 /** @typedef {import('../utils/lint-result').LintResult} LintResult */
 /**
  * https://eslint.org
@@ -25944,8 +25943,7 @@ class ESLint {
                 runCli('eslint -v', 'npx');
             }
             catch (err) {
-                core.debug(String(err));
-                throw new Error('Eslint is not installed');
+                throw new Error('Eslint is not installed:' + err);
             }
         });
     }
@@ -26075,7 +26073,6 @@ function runCli(cmd, prefix) {
         output.status = 0;
         output.stdout = stdout.trim();
         output.stderr = "";
-        core.debug(`Stdout: ${output.stdout}`);
         return output;
     }
     catch (err) {

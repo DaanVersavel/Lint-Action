@@ -54,8 +54,6 @@ function runCli(cmd: string, prefix: string): outputType {
 		output.stdout = stdout.trim();
 		output.stderr = "";
 
-		core.debug(`Stdout: ${output.stdout}`);
-
 		return output;
 	} catch (err) {
 		if (typeof err === 'object' && err !== null) {

@@ -21,8 +21,8 @@ async function runLint(): Promise<void> {
     console.log(core);
 
 
-    core.setFailed('ESLint found errors.');
     if (!lintResult.isSuccess) {
+      core.setFailed('ESLint found errors.');
     }
   } catch (error) {
     if (error instanceof Error) {

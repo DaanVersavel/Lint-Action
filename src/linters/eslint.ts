@@ -1,6 +1,5 @@
 const { initLintResult } = require("../lint-result");
 const {runCli, commandExists, removeTrailingPeriod} = require("../utils");
-import * as core from '@actions/core';
 import { outputType } from '../utils';
 
 
@@ -16,14 +15,13 @@ class ESLint {
     static async checkEslintVersion(): Promise<void> {
         // Verify that NPM is installed (required to execute ESLint)
         if (!(await commandExists("npm"))) {
-            throw new Error("NPM is not installed")
+            throw new Error("NPM is not installed");
         }
         // Verify that ESLint is installed
         try {
             runCli('eslint -v', 'npx');
         } catch (err) {
-            core.debug(String(err));
-            throw new Error('Eslint is not installed');
+            throw new Error('Eslint is not installed:' + err);
         }
 
     }
