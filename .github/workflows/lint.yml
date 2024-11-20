@@ -1,4 +1,4 @@
-name: Test lint action
+name: Lint action
 
 on: [push, pull_request]
 
