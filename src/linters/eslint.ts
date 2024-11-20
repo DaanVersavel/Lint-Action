@@ -41,7 +41,7 @@ class ESLint {
         if (autoFix) {
           command += ' --fix';
         }
-        return runCli(command, 'npx')
+        return runCli(command, 'npx');
     }
 
     /**

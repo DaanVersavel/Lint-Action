@@ -20,4 +20,4 @@ jobs:
         uses: ./ # Use local action for testing
         with:
           eslint_extensions: ts
-          auto_fix: true
+          auto_fix: false
