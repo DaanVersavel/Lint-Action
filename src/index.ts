@@ -1,7 +1,6 @@
 import * as core from '@actions/core';
 const eslint = require("./linters/eslint");
 // const { getContext } = require("./github/context");
-import { lintResultType } from './lint-result';
 
 // Main function to run ESLint
 async function runLint(): Promise<void> {
@@ -17,7 +16,7 @@ async function runLint(): Promise<void> {
     // Run ESLint and capture output
     const eslintOutput = eslint.lint(extensions, autoFix);
 
-    const lintResult: lintResultType = eslint.parseOutput(eslintOutput)
+    const lintResult = eslint.parseOutput(eslintOutput);
 
 
 

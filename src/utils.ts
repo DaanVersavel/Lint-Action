@@ -7,7 +7,7 @@ export type outputType = {
 	status: number;
 	stdout: string
 	stderr: string
-}
+};
 
 /**
  * Returns whether the provided shell command is available
@@ -22,7 +22,7 @@ async function commandExists(command: string) {
 		return true;
 	} catch (error) {
 		console.log(`Check for command gave following error: ${error}`);
-		return false
+		return false;
 	}
 }
 
@@ -58,18 +58,15 @@ function runCli(cmd: string, prefix: string): outputType {
 
 		return output;
 	} catch (err) {
-		/* const error: outputType = err;
-		const output: outputType = {
-			status: error.status,
-			stdout: error.stdout.trim(),
-			stderr: error.stderr.trim(),
-		};
-
-		core.debug(`Exit code: ${error.status}`);
-		core.debug(`Stdout: ${error.stdout.trim()}`);
-		core.debug(`Stderr: ${err.stderr.trim()}`);
-		core.debug(`Command: ${commandCli}`); */
-		console.log(String(err))
+		if (typeof err === 'object' && err !== null) {
+			console.log('yow');
+			if ('status' in err && 'stdout' in err && 'stderr' in err) {
+				output.status = err.status as number;
+				output.stdout = (err.stdout as string).trim();
+				output.stderr = (err.stderr as string).trim();
+			}
+		  }
+		console.log(String(err));
 		return output;
 	}
 }
@@ -80,7 +77,7 @@ function runCli(cmd: string, prefix: string): outputType {
  * @returns {string} - String without trailing period
  */
 function removeTrailingPeriod(str: string) {
-	return str[str.length - 1] === "." ? str.substring(0, str.length - 1) : str;
+	return str[str.length - 1] === "." ? str.substring(0, str.length - 1) : str
 }
 
 
@@ -88,4 +85,4 @@ module.exports = {
 	commandExists,
 	runCli,
 	removeTrailingPeriod
-}
+};

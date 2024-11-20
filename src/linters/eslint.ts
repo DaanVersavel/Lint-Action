@@ -2,8 +2,6 @@ const { initLintResult } = require("../lint-result");
 const {runCli, commandExists, removeTrailingPeriod} = require("../utils");
 import * as core from '@actions/core';
 import { outputType } from '../utils';
-import { lintResultType } from '../lint-result';
-
 
 
 /** @typedef {import('../utils/lint-result').LintResult} LintResult */
@@ -18,7 +16,7 @@ class ESLint {
     static async checkEslintVersion(): Promise<void> {
         // Verify that NPM is installed (required to execute ESLint)
         if (!(await commandExists("npm"))) {
-            throw new Error("NPM is not installed");
+            throw new Error("NPM is not installed")
         }
         // Verify that ESLint is installed
         try {
@@ -56,7 +54,7 @@ class ESLint {
      * @returns {lintResultType} - Parsed lint result
      */
     static parseOutput(output: outputType) {
-        const lintResult: lintResultType = initLintResult();
+        const lintResult = initLintResult();
         lintResult.isSuccess = output.status === 0;
 
         let outputJson;
@@ -69,8 +67,9 @@ class ESLint {
         }
 
         for (const violation of outputJson) {
-            const { messages } = violation;
+            const { messages, fixableErrorCount } = violation;
             // const path = filePath.substring(dir.length + 1);
+            lintResult.fixable = lintResult.fixable || !!fixableErrorCount; 
 
             for (const msg of messages) {
                 const { fatal, line, message, ruleId, severity } = msg;

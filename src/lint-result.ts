@@ -14,6 +14,11 @@ export type lintResultType = {
 	 * Errors.
 	 */
 	error: object[];
+
+	/**
+	 * Whether there are fixable issues.
+	 */
+	fixable: boolean;
   };
 
 /**
@@ -24,10 +29,11 @@ function initLintResult() {
 	const result : lintResultType = {
 		isSuccess: false, // Usually determined by the exit code of the linting command
 		warning: [],
-		error: []
+		error: [],
+		fixable: false
 	};
 	
-	return result 
+	return result; 
 }
 
 /**
