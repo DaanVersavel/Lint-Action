@@ -25839,8 +25839,9 @@ function runLint() {
             // Run ESLint and capture output
             const eslintOutput = eslint.lint(extensions, autoFix);
             const lintResult = eslint.parseOutput(eslintOutput);
+            console.log(core);
+            core.setFailed('ESLint found errors.');
             if (!lintResult.isSuccess) {
-                core.setFailed('ESLint found errors.');
             }
         }
         catch (error) {
@@ -26079,14 +26080,12 @@ function runCli(cmd, prefix) {
     }
     catch (err) {
         if (typeof err === 'object' && err !== null) {
-            console.log('yow');
             if ('status' in err && 'stdout' in err && 'stderr' in err) {
                 output.status = err.status;
                 output.stdout = err.stdout.trim();
                 output.stderr = err.stderr.trim();
             }
         }
-        console.log(String(err));
         return output;
     }
 }

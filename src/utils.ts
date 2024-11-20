@@ -59,14 +59,12 @@ function runCli(cmd: string, prefix: string): outputType {
 		return output;
 	} catch (err) {
 		if (typeof err === 'object' && err !== null) {
-			console.log('yow');
 			if ('status' in err && 'stdout' in err && 'stderr' in err) {
 				output.status = err.status as number;
 				output.stdout = (err.stdout as string).trim();
 				output.stderr = (err.stderr as string).trim();
 			}
-		  }
-		console.log(String(err));
+		}
 		return output;
 	}
 }
@@ -77,7 +75,7 @@ function runCli(cmd: string, prefix: string): outputType {
  * @returns {string} - String without trailing period
  */
 function removeTrailingPeriod(str: string) {
-	return str[str.length - 1] === "." ? str.substring(0, str.length - 1) : str
+	return str[str.length - 1] === "." ? str.substring(0, str.length - 1) : str;
 }
 
 

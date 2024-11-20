@@ -18,10 +18,11 @@ async function runLint(): Promise<void> {
 
     const lintResult = eslint.parseOutput(eslintOutput);
 
+    console.log(core);
 
 
+    core.setFailed('ESLint found errors.');
     if (!lintResult.isSuccess) {
-      core.setFailed('ESLint found errors.');
     }
   } catch (error) {
     if (error instanceof Error) {
