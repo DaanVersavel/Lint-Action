@@ -25837,7 +25837,7 @@ function runLint() {
             // Check if ESLint version is 9 or higher
             eslint.checkEslintVersion();
             // Run ESLint and capture output
-            const eslintOutput = eslint.lint(extensions, autoFix);
+            const eslintOutput = eslint.lint(extensions, false);
             const lintResult = eslint.parseOutput(eslintOutput);
             console.log(core);
             if (!lintResult.isSuccess) {

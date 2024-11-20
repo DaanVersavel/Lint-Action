@@ -14,7 +14,7 @@ async function runLint(): Promise<void> {
     eslint.checkEslintVersion();
 
     // Run ESLint and capture output
-    const eslintOutput = eslint.lint(extensions, autoFix);
+    const eslintOutput = eslint.lint(extensions, false);
 
     const lintResult = eslint.parseOutput(eslintOutput);
 
