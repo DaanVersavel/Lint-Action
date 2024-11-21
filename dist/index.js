@@ -30104,14 +30104,14 @@ function checkoutBranch() {
         cloneURl.password = context.token; */
     runCli(`config --global user.email "action@user.com"`, 'git');
     runCli(`config --global user.name "action user"`, 'git');
+    /* 	runCli(`fetch`, 'git');
+        runCli(`branch --force ${branch} --track origin/${branch}`, 'git');
+        runCli(`checkout ${branch}`, 'git'); */
     runCli(`fetch`, 'git');
-    runCli(`branch --force ${branch} --track origin/${branch}`, 'git');
-    runCli(`checkout ${branch}`, 'git');
-    /*    runCli(`branch`, 'git');
-       runCli(`checkout eslint`, 'git');
-       runCli('commit -m "[GEN] retrigger checks" --allow-empty', 'git');
-       runCli('push', 'git');
-    */
+    runCli(`branch`, 'git');
+    runCli(`checkout -t origin/${branch}`, 'git');
+    runCli('commit -m "[GEN] retrigger checks" --allow-empty', 'git');
+    runCli('push', 'git');
     core.info(`Successfully checked out branch: ${branch}`);
     // Fetch remote branch
     /* 	core.info(`Fetching remote branch "${context.branch}"`);
