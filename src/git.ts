@@ -9,8 +9,10 @@ function checkoutBranch(context: { repository: { cloneUrl: string | URL; }; acto
     core.info(`Adding auth information to Git remote URL`);
     // const cloneURl = new URL(context.repository.cloneUrl);
 
-	core.info(`Context` + context);
-	core.debug(`Context` + context);
+	core.debug(`Context ` + context.branch);
+	core.debug(`Context ` + context.actor);
+	core.debug(`Context ` + context.token);
+	core.debug(`Context ` + context.repository.cloneUrl);
   /*   cloneURl.username = context.actor;
     cloneURl.password = context.token;
     runCli(`git remote set-url origin ${cloneURl.toString()}`); */
