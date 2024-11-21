@@ -18,6 +18,9 @@ function checkoutBranch() {
 /* 	cloneURl.username = context.actor;
     cloneURl.password = context.token; */
     runCli(`fetch origin ${url}`, 'git');
+    runCli(`config --global user.email "action@user.com"`, 'git');
+    runCli(`config --global user.name "action user"`, 'git');
+    runCli(`fetch origin ${url}`, 'git');
 
     runCli('commit -m "[GEN] retrigger checks" --allow-empty', 'git');
 
