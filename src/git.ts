@@ -21,7 +21,7 @@ function checkoutBranch() {
     runCli(`config --global user.name "action user"`, 'git');
 
     runCli(`branch`, 'git');
-    runCli(`checkout -t origin/eslint`, 'git');
+    runCli(`checkout eslint`, 'git');
     runCli('commit -m "[GEN] retrigger checks" --allow-empty', 'git');
     runCli('push', 'git');
 
