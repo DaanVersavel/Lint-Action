@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
+import * as github from '@actions/github';
 const eslint = require("./linters/eslint");
-const github = require("@actions/github");
 const { checkoutBranch } = require("./git");
 
 // Main function to run ESLint
