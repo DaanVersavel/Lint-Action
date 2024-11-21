@@ -20,6 +20,7 @@ function checkoutBranch() {
     runCli(`config --global user.email "action@user.com"`, 'git');
     runCli(`config --global user.name "action user"`, 'git');
 
+	runCli(`fetch`, 'git');
 	runCli(`branch --force ${branch} --track origin/${branch}`, 'git');
 	runCli(`checkout ${branch}`, 'git');
 
