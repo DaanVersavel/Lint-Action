@@ -1,5 +1,4 @@
 import * as core from '@actions/core';
-import * as github from '@actions/github';
 const eslint = require("./linters/eslint");
 const { checkoutBranch } = require("./git");
 
@@ -7,12 +6,11 @@ const { checkoutBranch } = require("./git");
 async function runLint(): Promise<void> {
   
   // Decalre variables
-  const context = github.context;
   const extensions = core.getInput('eslint_extensions');
   const autoFix = core.getInput('auto_fix') === 'true';
 
   // Setup
-  checkoutBranch(context);
+  checkoutBranch();
 
   // Check if ESLint version is 9 or higher
   eslint.checkEslintVersion();

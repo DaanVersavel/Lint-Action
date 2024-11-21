@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-const {runCli} = require("./utils");
+const { runCli } = require("./utils");
 import * as github from '@actions/github';
 
 /**
@@ -8,36 +8,34 @@ import * as github from '@actions/github';
  */
 function checkoutBranch() {
 	const context = github.context;
-    core.info(`Adding auth information to Git remote URL`);
-    // const cloneURl = new URL(context.repository.cloneUrl);
-
 	const branch = context.payload.pull_request?.head.ref;
-	core.debug(`Context ` + branch);
-	
-	
-/* 	cloneURl.username = context.actor;
-    cloneURl.password = context.token; */
-    runCli(`config --global user.email "action@user.com"`, 'git');
-    runCli(`config --global user.name "action user"`, 'git');
 
+	core.info(`Adding auth information to Git`);
+	runCli(`config --global user.email "action@user.com"`, 'git');
+	runCli(`config --global user.name "action user"`, 'git');
+
+	//TODO change to only fetch neccesarry brnach
+	core.info(`Fetch remote branches`);
 	runCli(`fetch`, 'git');
-    runCli(`branch`, 'git');
-    runCli(`checkout -t origin/${branch}`, 'git');
-    runCli('commit -m "[GEN] retrigger checks" --allow-empty', 'git');
-    runCli('push  --no-verify', 'git');
 
-	core.info(`Successfully checked out branch: ${branch}`);
-	// Fetch remote branch
-/* 	core.info(`Fetching remote branch "${context.branch}"`);
-	runCli(`git fetch --no-tags --depth=1 origin ${context.branch}`);
+	core.info(`Checkout pull request branch`);
+	runCli(`checkout -t origin/${branch}`, 'git');
+}
 
-	// Switch to remote branch
-	core.info(`Switching to the "${context.branch}" branch`);
-	runCli(`git branch --force ${context.branch} --track origin/${context.branch}`);
-	runCli(`git checkout ${context.branch}`); */
+
+/**
+ * Commits all changes (if any) and pushes them to the remote.
+ */
+function pushChanges() {
+	core.info(`Create fix commit`);
+	runCli('commit -m "Fix eslint issues" --allow-empty', 'git');
+
+	core.info(`Push changes`);
+	runCli('push', 'git');
 }
 
 
 module.exports = {
-    checkoutBranch
+	checkoutBranch,
+	pushChanges
 };
