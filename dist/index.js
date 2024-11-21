@@ -30100,9 +30100,8 @@ function checkoutBranch() {
     core.info(`Adding auth information to Git`);
     runCli(`config --global user.email "action@user.com"`, 'git');
     runCli(`config --global user.name "action user"`, 'git');
-    //TODO change to only fetch neccesarry brnach
     core.info(`Fetch remote branches`);
-    runCli(`fetch`, 'git');
+    runCli(`fetch origin ${branch}`, 'git');
     core.info(`Checkout pull request branch`);
     runCli(`checkout -t origin/${branch}`, 'git');
 }
