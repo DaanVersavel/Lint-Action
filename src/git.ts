@@ -19,6 +19,8 @@ function checkoutBranch() {
     cloneURl.password = context.token; */
     runCli(`fetch origin ${url}`, 'git');
 
+    runCli('git commit -m "[GEN] retrigger checks" --allow-empty', 'git');
+
 	core.info(`Successfully checked out branch: ${url}`);
 	// Fetch remote branch
 /* 	core.info(`Fetching remote branch "${context.branch}"`);
