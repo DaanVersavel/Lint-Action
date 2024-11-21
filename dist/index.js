@@ -30098,17 +30098,16 @@ function checkoutBranch() {
     const context = github.context;
     core.info(`Adding auth information to Git remote URL`);
     // const cloneURl = new URL(context.repository.cloneUrl);
-    const url = (_a = context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.head.ref;
-    core.debug(`Context ` + url);
+    const branch = (_a = context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.head.ref;
+    core.debug(`Context ` + branch);
     /* 	cloneURl.username = context.actor;
         cloneURl.password = context.token; */
-    runCli(`fetch origin ${url}`, 'git');
+    runCli(`checkout -t origin/${branch}`, 'git');
     runCli(`config --global user.email "action@user.com"`, 'git');
     runCli(`config --global user.name "action user"`, 'git');
-    runCli(`fetch origin ${url}`, 'git');
     runCli('commit -m "[GEN] retrigger checks" --allow-empty', 'git');
     runCli('push', 'git');
-    core.info(`Successfully checked out branch: ${url}`);
+    core.info(`Successfully checked out branch: ${branch}`);
     // Fetch remote branch
     /* 	core.info(`Fetching remote branch "${context.branch}"`);
         runCli(`git fetch --no-tags --depth=1 origin ${context.branch}`);
