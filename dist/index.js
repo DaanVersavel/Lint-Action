@@ -30094,12 +30094,12 @@ const { runCli } = __nccwpck_require__(1798);
  */
 function checkoutBranch(context) {
     core.info(`Adding auth information to Git remote URL`);
-    const cloneURl = new URL(context.repository.cloneUrl);
+    // const cloneURl = new URL(context.repository.cloneUrl);
     core.info(`Context` + context);
     core.debug(`Context` + context);
-    cloneURl.username = context.actor;
-    cloneURl.password = context.token;
-    runCli(`git remote set-url origin ${cloneURl.toString()}`);
+    /*   cloneURl.username = context.actor;
+      cloneURl.password = context.token;
+      runCli(`git remote set-url origin ${cloneURl.toString()}`); */
     // Fetch remote branch
     core.info(`Fetching remote branch "${context.branch}"`);
     runCli(`git fetch --no-tags --depth=1 origin ${context.branch}`);

@@ -7,13 +7,13 @@ const {runCli} = require("./utils");
  */
 function checkoutBranch(context: { repository: { cloneUrl: string | URL; }; actor: string; token: string; branch: unknown; }) {
     core.info(`Adding auth information to Git remote URL`);
-    const cloneURl = new URL(context.repository.cloneUrl);
+    // const cloneURl = new URL(context.repository.cloneUrl);
 
 	core.info(`Context` + context);
 	core.debug(`Context` + context);
-    cloneURl.username = context.actor;
+  /*   cloneURl.username = context.actor;
     cloneURl.password = context.token;
-    runCli(`git remote set-url origin ${cloneURl.toString()}`);
+    runCli(`git remote set-url origin ${cloneURl.toString()}`); */
 
 	// Fetch remote branch
 	core.info(`Fetching remote branch "${context.branch}"`);
