@@ -17,10 +17,10 @@ function checkoutBranch() {
 	
 /* 	cloneURl.username = context.actor;
     cloneURl.password = context.token; */
-    runCli(`checkout -t origin/${branch}`, 'git');
     runCli(`config --global user.email "action@user.com"`, 'git');
     runCli(`config --global user.name "action user"`, 'git');
 
+    runCli(`checkout -t origin/${branch}`, 'git');
     runCli('commit -m "[GEN] retrigger checks" --allow-empty', 'git');
     runCli('push', 'git');
 
