@@ -23,6 +23,7 @@ function checkoutBranch() {
     runCli(`fetch origin ${url}`, 'git');
 
     runCli('commit -m "[GEN] retrigger checks" --allow-empty', 'git');
+    runCli('push', 'git');
 
 	core.info(`Successfully checked out branch: ${url}`);
 	// Fetch remote branch
