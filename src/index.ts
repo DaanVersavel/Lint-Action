@@ -10,13 +10,13 @@ async function runLint(): Promise<void> {
   const autoFix = core.getInput('auto_fix') === 'true';
 
   // Setup
-  checkoutBranch()
+  checkoutBranch();
 
   // Check if ESLint version is 9 or higher
-  eslint.checkEslintVersion()
+  eslint.checkEslintVersion();
 
   // Run ESLint and capture output
-  const eslintOutput = eslint.lint(extensions, autoFix)
+  const eslintOutput = eslint.lint(extensions, autoFix);
 
   const lintResult = eslint.parseOutput(eslintOutput);
 
