@@ -30081,11 +30081,14 @@ function wrappy (fn, cb) {
 /***/ }),
 
 /***/ 1243:
-/***/ ((module, exports, __nccwpck_require__) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.checkoutBranch = checkoutBranch;
+exports.hasChanges = hasChanges;
+exports.pushChanges = pushChanges;
 const core = __nccwpck_require__(7484);
 const { runCli } = __nccwpck_require__(1798);
 const github = __nccwpck_require__(3228);
@@ -30100,24 +30103,28 @@ function checkoutBranch() {
     core.info(`Adding auth information to Git`);
     runCli(`config --global user.email "action@user.com"`, 'git');
     runCli(`config --global user.name "action user"`, 'git');
-    core.info(`Fetch remote branches`);
+    core.info(`Fetch remote branchs`);
     runCli(`fetch origin ${branch}`, 'git');
     core.info(`Checkout pull request branch`);
     runCli(`checkout -t origin/${branch}`, 'git');
+}
+/**
+ * Checks if there are any changes in the working directory.
+ * @returns {number} - The status code indicating the presence of changes (0 if no changes, non-zero if changes exist).
+ */
+function hasChanges() {
+    const output = runCli('diff-index --name-status --exit-code HEAD --', 'git');
+    return output.status === true;
 }
 /**
  * Commits all changes (if any) and pushes them to the remote.
  */
 function pushChanges() {
     core.info(`Create fix commit`);
-    runCli('commit -m "Fix eslint issues" --allow-empty', 'git');
+    runCli('commit . -m "Fix eslint issues"', 'git');
     core.info(`Push changes`);
     runCli('push', 'git');
 }
-module.exports = {
-    checkoutBranch,
-    pushChanges
-};
 
 
 /***/ }),
@@ -30139,7 +30146,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __nccwpck_require__(7484);
 const eslint = __nccwpck_require__(7098);
-const { checkoutBranch } = __nccwpck_require__(1243);
+const { checkoutBranch, pushChanges, hasChanges } = __nccwpck_require__(1243);
 // Main function to run ESLint
 function runLint() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -30153,7 +30160,10 @@ function runLint() {
         // Run ESLint and capture output
         const eslintOutput = eslint.lint(extensions, autoFix);
         const lintResult = eslint.parseOutput(eslintOutput);
-        console.log(core);
+        // There are not changes if there 
+        if (hasChanges()) {
+            pushChanges();
+        }
         if (!lintResult.isSuccess) {
             core.setFailed('ESLint found errors.');
         }
@@ -30287,7 +30297,6 @@ class ESLint {
         }
         for (const violation of outputJson) {
             const { messages, fixableErrorCount } = violation;
-            // const path = filePath.substring(dir.length + 1);
             lintResult.fixable = lintResult.fixable || !!fixableErrorCount;
             for (const msg of messages) {
                 const { fatal, line, message, ruleId, severity } = msg;

@@ -1,2 +1,5 @@
-#ignore gitmodules
+# Ignore gitmodules
 node_modules
+
+# Ignore helper file
+helper.txt

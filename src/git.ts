@@ -6,7 +6,7 @@ import * as github from '@actions/github';
  * Checks out a branch on GitHub, adding the access token to the clone URL and setting the branch to track the remote one.
  * @param {Context} context - The GitHub context from the Actions API.
  */
-function checkoutBranch() {
+export function checkoutBranch() {
 	const context = github.context;
 	const branch = context.payload.pull_request?.head.ref;
 
@@ -14,7 +14,7 @@ function checkoutBranch() {
 	runCli(`config --global user.email "action@user.com"`, 'git');
 	runCli(`config --global user.name "action user"`, 'git');
 
-	core.info(`Fetch remote branches`);
+	core.info(`Fetch remote branchs`);
 	runCli(`fetch origin ${branch}`, 'git');
 
 	core.info(`Checkout pull request branch`);
@@ -23,18 +23,21 @@ function checkoutBranch() {
 
 
 /**
+ * Checks if there are any changes in the working directory.
+ * @returns {number} - The status code indicating the presence of changes (0 if no changes, non-zero if changes exist).
+ */
+export function hasChanges() {
+	const output = runCli('diff-index --name-status --exit-code HEAD --', 'git');
+	return output.status === true;
+}
+
+/**
  * Commits all changes (if any) and pushes them to the remote.
  */
-function pushChanges() {
+export function pushChanges() {
 	core.info(`Create fix commit`);
-	runCli('commit -m "Fix eslint issues" --allow-empty', 'git');
+	runCli('commit . -m "Fix eslint issues"', 'git');
 
 	core.info(`Push changes`);
 	runCli('push', 'git');
 }
-
-
-module.exports = {
-	checkoutBranch,
-	pushChanges
-};

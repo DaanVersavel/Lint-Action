@@ -11,6 +11,7 @@
         "internalConsoleOptions": "openOnSessionStart",
         "env": {
           "INPUT_eslint_extensions": "ts",
+          "INPUT_auto_fix": "true",
           "INPUT_LABEL": "needs-review"
         }
       }
