@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-const { runCli } = require("./utils");
+import { runCli } from './utils';
 import * as github from '@actions/github';
 
 /**
@@ -24,11 +24,11 @@ export function checkoutBranch() {
 
 /**
  * Checks if there are any changes in the working directory.
- * @returns {number} - The status code indicating the presence of changes (0 if no changes, non-zero if changes exist).
+ * @returns {boolean} - The status code indicating the presence of changes (0 if no changes, non-zero if changes exist).
  */
 export function hasChanges() {
 	const output = runCli('diff-index --name-status --exit-code HEAD --', 'git');
-	return output.status === true;
+	return !!output.status === true;
 }
 
 /**

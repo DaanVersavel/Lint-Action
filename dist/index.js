@@ -30090,7 +30090,7 @@ exports.checkoutBranch = checkoutBranch;
 exports.hasChanges = hasChanges;
 exports.pushChanges = pushChanges;
 const core = __nccwpck_require__(7484);
-const { runCli } = __nccwpck_require__(1798);
+const utils_1 = __nccwpck_require__(1798);
 const github = __nccwpck_require__(3228);
 /**
  * Checks out a branch on GitHub, adding the access token to the clone URL and setting the branch to track the remote one.
@@ -30101,29 +30101,29 @@ function checkoutBranch() {
     const context = github.context;
     const branch = (_a = context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.head.ref;
     core.info(`Adding auth information to Git`);
-    runCli(`config --global user.email "action@user.com"`, 'git');
-    runCli(`config --global user.name "action user"`, 'git');
+    (0, utils_1.runCli)(`config --global user.email "action@user.com"`, 'git');
+    (0, utils_1.runCli)(`config --global user.name "action user"`, 'git');
     core.info(`Fetch remote branchs`);
-    runCli(`fetch origin ${branch}`, 'git');
+    (0, utils_1.runCli)(`fetch origin ${branch}`, 'git');
     core.info(`Checkout pull request branch`);
-    runCli(`checkout -t origin/${branch}`, 'git');
+    (0, utils_1.runCli)(`checkout -t origin/${branch}`, 'git');
 }
 /**
  * Checks if there are any changes in the working directory.
- * @returns {number} - The status code indicating the presence of changes (0 if no changes, non-zero if changes exist).
+ * @returns {boolean} - The status code indicating the presence of changes (0 if no changes, non-zero if changes exist).
  */
 function hasChanges() {
-    const output = runCli('diff-index --name-status --exit-code HEAD --', 'git');
-    return output.status === true;
+    const output = (0, utils_1.runCli)('diff-index --name-status --exit-code HEAD --', 'git');
+    return !!output.status === true;
 }
 /**
  * Commits all changes (if any) and pushes them to the remote.
  */
 function pushChanges() {
     core.info(`Create fix commit`);
-    runCli('commit . -m "Fix eslint issues"', 'git');
+    (0, utils_1.runCli)('commit . -m "Fix eslint issues"', 'git');
     core.info(`Push changes`);
-    runCli('push', 'git');
+    (0, utils_1.runCli)('push', 'git');
 }
 
 
@@ -30146,7 +30146,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __nccwpck_require__(7484);
 const eslint = __nccwpck_require__(7098);
-const { checkoutBranch, pushChanges, hasChanges } = __nccwpck_require__(1243);
+const git_1 = __nccwpck_require__(1243);
 // Main function to run ESLint
 function runLint() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -30154,15 +30154,15 @@ function runLint() {
         const extensions = core.getInput('eslint_extensions');
         const autoFix = core.getInput('auto_fix') === 'true';
         // Setup
-        checkoutBranch();
+        (0, git_1.checkoutBranch)();
         // Check if ESLint version is 9 or higher
         eslint.checkEslintVersion();
         // Run ESLint and capture output
         const eslintOutput = eslint.lint(extensions, autoFix);
         const lintResult = eslint.parseOutput(eslintOutput);
         // There are not changes if there 
-        if (hasChanges()) {
-            pushChanges();
+        if ((0, git_1.hasChanges)()) {
+            (0, git_1.pushChanges)();
         }
         if (!lintResult.isSuccess) {
             core.setFailed('ESLint found errors.');
@@ -30327,7 +30327,7 @@ module.exports = ESLint;
 /***/ }),
 
 /***/ 1798:
-/***/ (function(module, exports, __nccwpck_require__) {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
@@ -30341,6 +30341,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.commandExists = commandExists;
+exports.runCli = runCli;
+exports.removeTrailingPeriod = removeTrailingPeriod;
 const child_process_1 = __nccwpck_require__(5317);
 const core = __nccwpck_require__(7484);
 const checkForCommand = __nccwpck_require__(8888);
@@ -30408,11 +30411,6 @@ function runCli(cmd, prefix) {
 function removeTrailingPeriod(str) {
     return str[str.length - 1] === "." ? str.substring(0, str.length - 1) : str;
 }
-module.exports = {
-    commandExists,
-    runCli,
-    removeTrailingPeriod
-};
 
 
 /***/ }),

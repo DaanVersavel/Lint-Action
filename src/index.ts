@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 const eslint = require("./linters/eslint");
-const { checkoutBranch, pushChanges, hasChanges } = require("./git");
+import { checkoutBranch, pushChanges, hasChanges } from './git';
 
 // Main function to run ESLint
 async function runLint(): Promise<void> {
@@ -16,9 +16,9 @@ async function runLint(): Promise<void> {
   eslint.checkEslintVersion()
 
   // Run ESLint and capture output
-  const eslintOutput = eslint.lint(extensions, autoFix);
+  const eslintOutput = eslint.lint(extensions, autoFix)
 
-  const lintResult = eslint.parseOutput(eslintOutput)
+  const lintResult = eslint.parseOutput(eslintOutput);
 
   // There are not changes if there 
   if (hasChanges()) {
