@@ -14,7 +14,7 @@ export type outputType = {
  * @param {string} command - Shell command to check for
  * @returns {Promise<boolean>} - Whether the command is available
  */
-async function commandExists(command: string) {
+export async function commandExists(command: string) {
 	// The `command-exists` library throws an error if the command is not available. This function
 	// catches these errors and returns a boolean value instead
 	try {
@@ -31,7 +31,7 @@ async function commandExists(command: string) {
  * @param {string} cmd - Shell command to execute
  * @returns {{status: number, stdout: string, stderr: string}} - Output of the shell command
  */
-function runCli(cmd: string, prefix: string): outputType {
+export function runCli(cmd: string, prefix: string): outputType {
 	if (prefix === undefined) {
 		throw new Error('prefix is required');
 	}
@@ -72,13 +72,6 @@ function runCli(cmd: string, prefix: string): outputType {
  * @param {string} str - String to process
  * @returns {string} - String without trailing period
  */
-function removeTrailingPeriod(str: string) {
+export function removeTrailingPeriod(str: string) {
 	return str[str.length - 1] === "." ? str.substring(0, str.length - 1) : str;
 }
-
-
-module.exports = {
-	commandExists,
-	runCli,
-	removeTrailingPeriod
-};

@@ -1,5 +1,5 @@
 const { initLintResult } = require("../lint-result");
-const {runCli, commandExists, removeTrailingPeriod} = require("../utils");
+const { runCli, commandExists, removeTrailingPeriod } = require("../utils");
 import { outputType } from '../utils';
 
 
@@ -36,10 +36,9 @@ class ESLint {
      * @returns {{status: number, stdout: string, stderr: string}} - Output of the lint command
      */
     static lint(extensions: string, autoFix: string) {
-
         let command = `eslint "**/*.${extensions}" --format json`;
         if (autoFix) {
-          command += ' --fix';
+            command += ' --fix';
         }
         return runCli(command, 'npx');
     }
@@ -66,8 +65,7 @@ class ESLint {
 
         for (const violation of outputJson) {
             const { messages, fixableErrorCount } = violation;
-            // const path = filePath.substring(dir.length + 1);
-            lintResult.fixable = lintResult.fixable || !!fixableErrorCount; 
+            lintResult.fixable = lintResult.fixable || !!fixableErrorCount;
 
             for (const msg of messages) {
                 const { fatal, line, message, ruleId, severity } = msg;
