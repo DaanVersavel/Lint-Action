@@ -2,6 +2,10 @@ name: Lint action
 
 on: [pull_request]
 
+# Permission can be added at job level or workflow level
+permissions:
+  write-all 
+
 jobs:
   lint:
     runs-on: ubuntu-latest
