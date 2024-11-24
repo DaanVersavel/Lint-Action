@@ -1,6 +1,11 @@
 name: Lint action
 
-on: [pull_request]
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 # Permission can be added at job level or workflow level
 permissions:
