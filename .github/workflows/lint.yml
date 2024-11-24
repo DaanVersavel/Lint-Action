@@ -22,3 +22,5 @@ jobs:
         with:
           eslint_extensions: ts
           auto_fix: true
+        env:
+          github_token: "${{ secrets.PAT_KEY }}"
